@@ -11,7 +11,7 @@ export const getProductsList = async () => {
     await client.connect()
 
     try {
-        const query = "select p.id, p.manufacturer, p.model, p.price, s.count from products p join stocks s on p.id=s.product_id"
+        const query = "select p.id, p.manufacturer, p.model, p.img, p.price, s.count from products p join stocks s on p.id=s.product_id"
         const {rows: products} = await client.query(query)
 
         return {

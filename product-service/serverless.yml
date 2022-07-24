@@ -45,8 +45,13 @@ provider:
 #                - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    PG_HOST: task4-db.cqa5v273sikm.eu-west-1.rds.amazonaws.com
+    PG_PORT: 5432
+    PG_DB: task4
+    PG_USER: postgres
+    PG_PWD: 123
+
 
 # you can add packaging information here
 #package:
@@ -69,6 +74,12 @@ functions:
       - httpApi:
           path: /products/{productId}
           method: get
+  createProduct:
+    handler: handler.createProduct
+    events:
+      - httpApi:
+          path: /products
+          method: post
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

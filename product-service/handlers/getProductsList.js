@@ -1,31 +1,28 @@
 'use strict';
-import { headers } from "../constants/headers.js";
-import { getDBOptions } from "../utils/db.js";
-import pg from "pg";
+import { getDBClient } from "../utils/db.js";
+import { handleRequest } from "../utils/request.js";
 
-const {Client} = pg
-const DB_OPTIONS = getDBOptions(process.env)
-
-export const getProductsList = async () => {
-    const client = new Client(DB_OPTIONS)
-    await client.connect()
-
+export const getProducts = async () => {
+    let client
     try {
+        client = getDBClient(process.env)
+        await client.connect()
+
         const query = "select p.id, p.manufacturer, p.model, p.img, p.price, s.count from products p join stocks s on p.id=s.product_id"
         const {rows: products} = await client.query(query)
 
         return {
             statusCode: 200,
-            headers,
-            body: JSON.stringify(products),
+            body: products,
         };
     } catch (error) {
         return {
             statusCode: 500,
-            headers,
-            body: JSON.stringify(error),
+            body: error,
         };
     } finally {
         client.end()
     }
-};
+}
+
+export const getProductsList = async (event) => handleRequest(event, getProducts);

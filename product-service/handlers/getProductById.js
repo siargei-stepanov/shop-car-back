@@ -6,7 +6,7 @@ export const getProduct = async (event) => {
     const productId = event.pathParameters.productId;
     let client
     try {
-        client = getDBClient(process.env)
+        client = getDBClient()
         await client.connect()
 
         const query = `select p.id, p.manufacturer, p.model, p.price, s.count from products p join stocks s on p.id=s.product_id where p.id='${productId}'`

@@ -5,7 +5,7 @@ import { handleRequest } from "../utils/request.js";
 export const getProducts = async () => {
     let client
     try {
-        client = getDBClient(process.env)
+        client = getDBClient()
         await client.connect()
 
         const query = "select p.id, p.manufacturer, p.model, p.img, p.price, s.count from products p join stocks s on p.id=s.product_id"

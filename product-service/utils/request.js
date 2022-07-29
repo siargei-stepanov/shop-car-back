@@ -12,9 +12,9 @@ export const handleRequest = async (event, cb) => {
     } catch(error) {
         console.log('Request failed with error', error)
         return {
-            statusCode: error.statusCode,
+            statusCode: error.statusCode || 500,
             headers,
-            body: JSON.stringify(error.message)
+            body: JSON.stringify(error)
         }
     }
 }

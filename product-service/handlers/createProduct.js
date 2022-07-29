@@ -1,9 +1,9 @@
 'use strict';
-import { getDBClient } from "../utils/db.js";
+import { executeTransaction } from "../utils/db.js";
 import {handleRequest} from "../utils/request.js";
 
 export const create = async (event) => {
-    let product, client
+    let product
     try {
         product = JSON.parse(event.body)
         if (!product.manufacturer || !product.model || !product.price || !product.count) {
@@ -19,10 +19,7 @@ export const create = async (event) => {
         };
     }
 
-    try {
-        client = getDBClient(process.env)
-        await client.connect()
-
+    return executeTransaction(async (client) => {
         const {manufacturer, model, img, price, count} = product
         const queryProduct = `insert into products (manufacturer, model, img, price) values
             ('${manufacturer}', '${model}', '${img}', ${price}) RETURNING id`
@@ -36,14 +33,7 @@ export const create = async (event) => {
             statusCode: 201,
             body: "",
         };
-    } catch (error) {
-        return {
-            statusCode: 500,
-            body: error,
-        };
-    } finally {
-        client.end()
-    }
+    })
 };
 
 export const createProduct = async (event) => handleRequest(event, create)

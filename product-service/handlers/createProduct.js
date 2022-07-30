@@ -22,12 +22,12 @@ export const create = async (event) => {
     return executeTransaction(async (client) => {
         const {manufacturer, model, img, price, count} = product
         const queryProduct = `insert into products (manufacturer, model, img, price) values
-            ('${manufacturer}', '${model}', '${img}', ${price}) RETURNING id`
-        const {rows: productRow} = await client.query(queryProduct)
+            ($1, $2, $3, $4) RETURNING id`
+        const {rows: productRow} = await client.query(queryProduct, [manufacturer, model, img, price])
         const [{id: newProductId}] = productRow
 
-        const queryStocks = `insert into stocks (product_id, count) values ('${newProductId}', '${count}')`
-        await client.query(queryStocks)
+        const queryStocks = `insert into stocks (product_id, count) values ($1, $2)`
+        await client.query(queryStocks, [newProductId, count])
 
         return {
             statusCode: 201,

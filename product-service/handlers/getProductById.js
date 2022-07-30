@@ -9,8 +9,8 @@ export const getProduct = async (event) => {
         client = getDBClient()
         await client.connect()
 
-        const query = `select p.id, p.manufacturer, p.model, p.price, s.count from products p join stocks s on p.id=s.product_id where p.id='${productId}'`
-        const {rows: products} = await client.query(query)
+        const query = `select p.id, p.manufacturer, p.model, p.price, s.count from products p join stocks s on p.id=s.product_id where p.id=$1`
+        const {rows: products} = await client.query(query, [productId])
 
         if (products.length === 0) {
             return {

@@ -14,7 +14,7 @@ export const handleRequest = async (event, cb) => {
         return {
             statusCode: error.statusCode || 500,
             headers,
-            body: JSON.stringify(error)
+            body: error
         }
     }
 }

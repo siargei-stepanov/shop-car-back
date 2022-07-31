@@ -9,7 +9,7 @@ export const importProduct = async (event) => {
     try {
 
         const client = new S3Client({region: 'eu-west-1'});
-        const putObjectParams = {Key: `upload/${fileName}`, Bucket: 'car-app-upload'}
+        const putObjectParams = {Key: `upload/${fileName}`, Bucket: 'car-app-import-bucket'}
         const command = new PutObjectCommand(putObjectParams);
         const url = await getSignedUrl(client, command);
         return {

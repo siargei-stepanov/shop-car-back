@@ -28,6 +28,7 @@ provider:
 
 plugins:
   - serverless-esbuild
+  - serverless-offline
 
 
 # you can overwrite defaults here

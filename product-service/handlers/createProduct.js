@@ -1,6 +1,6 @@
 'use strict';
 import { executeTransaction } from "../utils/db.js";
-import {handleRequest} from "../utils/request.js";
+import {handleRequest} from "../../common/request.js";
 
 export const create = async (event) => {
     let product

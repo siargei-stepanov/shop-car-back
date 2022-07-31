@@ -1,6 +1,6 @@
 'use strict';
 import { getDBClient } from "../utils/db.js";
-import { handleRequest } from "../utils/request.js";
+import { handleRequest } from "../../common/request.js";
 
 export const getProducts = async () => {
     let client

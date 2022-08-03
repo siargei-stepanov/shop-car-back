@@ -25,6 +25,17 @@ provider:
   runtime: nodejs16.x
   stage: dev
   region: eu-west-1
+  httpApi:
+    cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - 's3:ListBucket'
+      Resource: 'arn:aws:s3:::car-app-import-bucket'
+    - Effect: Allow
+      Action:
+        - 's3:*'
+      Resource: 'arn:aws:s3:::car-app-import-bucket/*'
 
 plugins:
   - serverless-esbuild

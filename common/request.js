@@ -1,4 +1,4 @@
-import {headers} from '../constants/headers.js'
+import {headers} from './headers.js'
 
 export const handleRequest = async (event, cb) => {
     console.log('Request event', event)

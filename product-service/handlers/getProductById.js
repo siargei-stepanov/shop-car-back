@@ -1,6 +1,6 @@
 'use strict';
 import { getDBClient } from "../utils/db.js";
-import {handleRequest} from "../utils/request.js";
+import {handleRequest} from "../../common/request.js";
 
 export const getProduct = async (event) => {
     const productId = event.pathParameters.productId;

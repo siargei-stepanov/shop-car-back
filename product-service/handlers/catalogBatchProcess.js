@@ -3,18 +3,15 @@ import {handleRequest} from "../common/request.js";
 import {create} from "./createProduct.js";
 
 export const batchProcess = async (event) => {
-    console.log('batch process event', event)
+    const promises = []
     event.Records.forEach((record) => {
         try {
-            const result = create(record)
-            result.then(data => {
-                console.log('inside result of record batch', data)
-            })
-            console.log('result of record batch', result)
+            promises.push(create(record))
         } catch (e) {
-            console.log('cannot create batch product', error)
+            console.log('cannot create batch product', e)
         }
     })
+    await Promise.all(promises)
     return {
         statusCode: 200,
         body: "success batch process",

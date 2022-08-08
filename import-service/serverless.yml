@@ -36,6 +36,11 @@ provider:
       Action:
         - 's3:*'
       Resource: 'arn:aws:s3:::car-app-import-bucket/*'
+    - Effect: Allow
+      Action: "sqs:*"
+      Resource: 'arn:aws:sqs:eu-west-1:547071746265:catalogItemsQueue'
+  environment:
+    SQS_URL: 'https://sqs.eu-west-1.amazonaws.com/547071746265/catalogItemsQueue'
 
 plugins:
   - serverless-esbuild
@@ -63,10 +68,6 @@ plugins:
 #              - - "arn:aws:s3:::"
 #                - "Ref" : "ServerlessDeploymentBucket"
 #                - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
 
 # you can add packaging information here
 #package:

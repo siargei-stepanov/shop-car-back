@@ -27,6 +27,13 @@ provider:
   region: eu-west-1
   httpApi:
     cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action: "sqs:*"
+      Resource:
+        Fn::GetAtt:
+          - catalogItemsQueue
+          - Arn
 
 # you can add statements to the Lambda function's IAM Role here
 #  iam:
@@ -48,6 +55,8 @@ provider:
 
 # you can define service wide environment variables here
   environment:
+    SQS_URL:
+      Ref: catalogItemsQueue
     PG_HOST: task4-db.cqa5v273sikm.eu-west-1.rds.amazonaws.com
     PG_PORT: 5432
     PG_DB: task4
@@ -82,6 +91,16 @@ functions:
       - httpApi:
           path: /products
           method: post
+  catalogBatchProcess:
+    handler: handler.catalogBatchProcess
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - catalogItemsQueue
+              - Arn
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -118,17 +137,15 @@ functions:
 #            host: example.com
 #            path: /hello
 
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
+
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
+resources:
+  Resources:
+    catalogItemsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: catalogItemsQueue
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"

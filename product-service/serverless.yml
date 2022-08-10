@@ -34,29 +34,17 @@ provider:
         Fn::GetAtt:
           - catalogItemsQueue
           - Arn
-
-# you can add statements to the Lambda function's IAM Role here
-#  iam:
-#    role:
-#      statements:
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:ListBucket"
-#          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:PutObject"
-#          Resource:
-#            Fn::Join:
-#              - ""
-#              - - "arn:aws:s3:::"
-#                - "Ref" : "ServerlessDeploymentBucket"
-#                - "/*"
+    - Effect: Allow
+      Action: "sns:*"
+      Resource:
+        Ref: createProductTopic
 
 # you can define service wide environment variables here
   environment:
     SQS_URL:
       Ref: catalogItemsQueue
+    SNS_ARN:
+      Ref: createProductTopic
     PG_HOST: task4-db.cqa5v273sikm.eu-west-1.rds.amazonaws.com
     PG_PORT: 5432
     PG_DB: task4
@@ -146,6 +134,17 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: catalogItemsQueue
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: createProductTopic
+    createProductEmailSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: siargei.stepanov@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"

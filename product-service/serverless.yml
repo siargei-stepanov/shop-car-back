@@ -20,6 +20,10 @@ service: product-service
 # Check out our docs for more details
 frameworkVersion: '3'
 
+useDotenv: true
+plugins:
+  - serverless-dotenv-plugin
+
 provider:
   name: aws
   runtime: nodejs16.x
@@ -29,28 +33,22 @@ provider:
     cors: true
   iamRoleStatements:
     - Effect: Allow
-      Action: "sqs:*"
+      Action: 'sqs:*'
       Resource:
         Fn::GetAtt:
           - catalogItemsQueue
           - Arn
     - Effect: Allow
-      Action: "sns:*"
+      Action: 'sns:*'
       Resource:
         Ref: createProductTopic
 
-# you can define service wide environment variables here
+  # you can define service wide environment variables here
   environment:
     SQS_URL:
       Ref: catalogItemsQueue
     SNS_ARN:
       Ref: createProductTopic
-    PG_HOST: task4-db.cqa5v273sikm.eu-west-1.rds.amazonaws.com
-    PG_PORT: 5432
-    PG_DB: task4
-    PG_USER: postgres
-    PG_PWD: 123
-
 
 # you can add packaging information here
 #package:
@@ -124,8 +122,6 @@ functions:
 #          conditions:
 #            host: example.com
 #            path: /hello
-
-
 
 # you can add CloudFormation resource templates here
 resources:

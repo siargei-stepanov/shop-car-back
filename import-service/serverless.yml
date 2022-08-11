@@ -37,7 +37,7 @@ provider:
         - 's3:*'
       Resource: 'arn:aws:s3:::car-app-import-bucket/*'
     - Effect: Allow
-      Action: "sqs:*"
+      Action: 'sqs:*'
       Resource: 'arn:aws:sqs:eu-west-1:547071746265:catalogItemsQueue'
   environment:
     SQS_URL: 'https://sqs.eu-west-1.amazonaws.com/547071746265/catalogItemsQueue'
@@ -45,7 +45,6 @@ provider:
 plugins:
   - serverless-esbuild
   - serverless-offline
-
 
 # you can overwrite defaults here
 #  stage: dev

@@ -1,6 +1,7 @@
 'use strict';
-import { handleRequest } from "../../common/request.js";
+import { handleRequest } from "../common/request.js";
 import { S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand} from "@aws-sdk/client-s3";
+import { SQSClient, SendMessageCommand, SendMessageCommandOutput } from "@aws-sdk/client-sqs";
 import csv from 'csv-parser';
 
 const BUCKET_NAME = 'car-app-import-bucket'
@@ -57,5 +58,12 @@ const processFileRecord = async (fileRecord) => {
 }
 
 const processProduct = (line) => {
-    console.log('parsed product', line);
+    console.log('parsed product', JSON.stringify(line));
+    const client = new SQSClient({region: 'eu-west-1'})
+    const params = {QueueUrl: process.env.SQS_URL, MessageBody: JSON.stringify(line)}
+    const sendCommand = new SendMessageCommand(params)
+    client.send(sendCommand, (err, data) => {
+        console.log('cliend send', err, data)
+    })
+
 }

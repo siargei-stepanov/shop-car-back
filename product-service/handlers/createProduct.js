@@ -1,6 +1,6 @@
 'use strict';
 import { executeTransaction } from "../utils/db.js";
-import {handleRequest} from "../../common/request.js";
+import {handleRequest} from "../common/request.js";
 
 export const create = async (event) => {
     let product
@@ -13,6 +13,7 @@ export const create = async (event) => {
             }
         }
     } catch (error) {
+        console.log('parsing error', error)
         return {
             statusCode: 400,
             body: "Cannot parse request body",
@@ -28,7 +29,6 @@ export const create = async (event) => {
 
         const queryStocks = `insert into stocks (product_id, count) values ($1, $2)`
         await client.query(queryStocks, [newProductId, count])
-
         return {
             statusCode: 201,
             body: "",

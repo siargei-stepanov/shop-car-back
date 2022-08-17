@@ -1,69 +1,72 @@
 'use strict';
-import { handleRequest } from "../common/request.js";
-import { S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand} from "@aws-sdk/client-s3";
-import { SQSClient, SendMessageCommand, SendMessageCommandOutput } from "@aws-sdk/client-sqs";
+import { handleRequest } from '../common/request.js';
+import { S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import csv from 'csv-parser';
 
-const BUCKET_NAME = 'car-app-import-bucket'
+const BUCKET_NAME = 'car-app-import-bucket';
 
 export const fileParser = async (event) => {
-    console.log('import file parser event', event)
-    try {
-        await processRecords(event.Records)
-        return {
-            statusCode: 200,
-            body: "Parsed",
-        };
-    } catch(error) {
-        console.log('error in product parsing', error)
-        return {
-            statusCode: 500,
-            body: error,
-        };
-    }
-    
-}
+  console.log('import file parser event', event);
+  try {
+    await processRecords(event.Records);
+    return {
+      statusCode: 200,
+      body: 'Parsed',
+    };
+  } catch (error) {
+    console.log('error in product parsing', error);
+    return {
+      statusCode: 500,
+      body: error,
+    };
+  }
+};
 
 export const importFileParser = async (event) => handleRequest(event, fileParser);
 
 const processRecords = async (fileRecords) => {
-    const promises = fileRecords.map(async (fileRecord) => await processFileRecord(fileRecord))
-    await Promise.all(promises)
-}
+  const promises = fileRecords.map(async (fileRecord) => await processFileRecord(fileRecord));
+  await Promise.all(promises);
+};
 
 const processFileRecord = async (fileRecord) => {
-    const key = fileRecord.s3.object.key
-    
-    const params = {
-        Bucket: BUCKET_NAME,
-        Key: `${key}`
-    };
-    const client = new S3Client({region: 'eu-west-1'}); 
-    const stream = await client.send(new GetObjectCommand(params));
+  const key = fileRecord.s3.object.key;
 
-    await new Promise((resolve, reject) => {
-        stream.Body.pipe(csv())
-            .on('data', data => processProduct(data))
-            .on('error', reject)
-            .on('end', resolve)
-    });
+  const params = {
+    Bucket: BUCKET_NAME,
+    Key: `${key}`,
+  };
+  const client = new S3Client({ region: 'eu-west-1' });
+  const stream = await client.send(new GetObjectCommand(params));
 
-    await client.send(new CopyObjectCommand({
-        Bucket: BUCKET_NAME,
-        CopySource: `${BUCKET_NAME}/${key}`,
-        Key: key.replace('uploaded', 'parsed'),
-    }))
+  await new Promise((resolve, reject) => {
+    stream.Body.pipe(csv())
+      .on('data', (data) => processProduct(data))
+      .on('error', reject)
+      .on('end', resolve);
+  });
 
-    await client.send(new DeleteObjectCommand(params));
-}
+  await client.send(
+    new CopyObjectCommand({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${key}`,
+      Key: key.replace('uploaded', 'parsed'),
+    })
+  );
+
+  await client.send(new DeleteObjectCommand(params));
+};
 
 const processProduct = (line) => {
-    console.log('parsed product', JSON.stringify(line));
-    const client = new SQSClient({region: 'eu-west-1'})
-    const params = {QueueUrl: process.env.SQS_URL, MessageBody: JSON.stringify(line)}
-    const sendCommand = new SendMessageCommand(params)
-    client.send(sendCommand, (err, data) => {
-        console.log('cliend send', err, data)
-    })
-
-}
+  console.log('parsed product', JSON.stringify(line));
+  const client = new SQSClient({ region: 'eu-west-1' });
+  const params = {
+    QueueUrl: process.env.SQS_URL,
+    MessageBody: JSON.stringify(line),
+  };
+  const sendCommand = new SendMessageCommand(params);
+  client.send(sendCommand, (err, data) => {
+    console.log('cliend send', err, data);
+  });
+};
